@@ -1,7 +1,9 @@
 #!/bin/sh
 #
 # Build luci-app-ripperdoc .ipk package without OpenWrt SDK
-# Follows the same format as OpenWrt's official ipkg-build
+# Replicates the exact format of OpenWrt's scripts/ipkg-build:
+#   .ipk = tar.gz( ./debian-binary ./data.tar.gz ./control.tar.gz )
+#
 # Usage: ./build-ipk.sh
 #
 
@@ -15,6 +17,7 @@ IPK_FILE="${PKG_NAME}_${PKG_VERSION}-${PKG_RELEASE}_${PKG_ARCH}.ipk"
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 BUILD_DIR="$(mktemp -d)"
+TIMESTAMP="$(date)"
 
 trap "rm -rf '$BUILD_DIR'" EXIT
 
@@ -34,15 +37,17 @@ chmod 755 "${DATA_DIR}/etc/init.d/ripperdoc"
 chmod 755 "${DATA_DIR}/etc/uci-defaults/luci-ripperdoc"
 chmod 644 "${DATA_DIR}/etc/config/ripperdoc"
 
-# --- data.tar.gz (use --format=gnu and '.' like OpenWrt ipkg-build) ---
+# --- data.tar.gz (same as ipkg-build: tar -cpf - | gzip -n) ---
 cd "${DATA_DIR}"
-tar --format=gnu --sort=name --owner=0 --group=0 -czf "${BUILD_DIR}/data.tar.gz" .
+tar --format=gnu --numeric-owner --sort=name -cpf - --mtime="$TIMESTAMP" . \
+  | gzip -n - > "${BUILD_DIR}/data.tar.gz"
+
+# --- Installed-Size = uncompressed data size (same as ipkg-build) ---
+INSTALLED_SIZE=$(gzip -dc < "${BUILD_DIR}/data.tar.gz" | wc -c)
 
 # --- control files ---
 CTRL_DIR="${BUILD_DIR}/control"
 mkdir -p "${CTRL_DIR}"
-
-INSTALLED_SIZE=$(du -sb "${DATA_DIR}" | cut -f1)
 
 cat > "${CTRL_DIR}/control" <<EOF
 Package: ${PKG_NAME}
@@ -79,17 +84,17 @@ chmod 755 "${CTRL_DIR}/postinst" "${CTRL_DIR}/prerm"
 
 # --- control.tar.gz ---
 cd "${CTRL_DIR}"
-tar --format=gnu --sort=name --owner=0 --group=0 -czf "${BUILD_DIR}/control.tar.gz" .
+tar --format=gnu --numeric-owner --sort=name -cf - --mtime="$TIMESTAMP" . \
+  | gzip -n - > "${BUILD_DIR}/control.tar.gz"
 
 # --- debian-binary ---
 echo "2.0" > "${BUILD_DIR}/debian-binary"
 
-# --- assemble .ipk (ar -crf like OpenWrt ipkg-build) ---
+# --- assemble .ipk as tar.gz (THIS is the correct OpenWrt format) ---
 cd "${BUILD_DIR}"
-ar -crf "${SCRIPT_DIR}/${IPK_FILE}" \
-   "${BUILD_DIR}/debian-binary" \
-   "${BUILD_DIR}/control.tar.gz" \
-   "${BUILD_DIR}/data.tar.gz"
+tar --format=gnu --numeric-owner --sort=name -cf - --mtime="$TIMESTAMP" \
+  ./debian-binary ./data.tar.gz ./control.tar.gz \
+  | gzip -n - > "${SCRIPT_DIR}/${IPK_FILE}"
 
 echo "Done: ${SCRIPT_DIR}/${IPK_FILE} ($(du -h "${SCRIPT_DIR}/${IPK_FILE}" | cut -f1))"
 echo ""
