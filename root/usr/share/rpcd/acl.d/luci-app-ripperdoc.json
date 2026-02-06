@@ -1,6 +1,6 @@
 {
 	"luci-app-ripperdoc": {
-		"description": "Grant access to Ripperdoc configuration",
+		"description": "Grant access to Ripperdoc AI chat and configuration",
 		"read": {
 			"uci": [
 				"ripperdoc"
@@ -12,6 +12,12 @@
 				],
 				"/var/log/ripperdoc.log": [
 					"read"
+				],
+				"/var/lib/ripperdoc/sessions/*": [
+					"read"
+				],
+				"/www/cgi-bin/ripperdoc-api": [
+					"exec"
 				]
 			},
 			"ubus": {
@@ -27,6 +33,9 @@
 			"file": {
 				"/etc/init.d/ripperdoc": [
 					"exec"
+				],
+				"/var/lib/ripperdoc/sessions/*": [
+					"write"
 				]
 			}
 		}

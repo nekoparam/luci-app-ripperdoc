@@ -36,6 +36,8 @@ cp "${SCRIPT_DIR}/htdocs/luci-static/resources/view/ripperdoc/"*.js \
 chmod 755 "${DATA_DIR}/etc/init.d/ripperdoc"
 chmod 755 "${DATA_DIR}/etc/uci-defaults/luci-ripperdoc"
 chmod 644 "${DATA_DIR}/etc/config/ripperdoc"
+chmod 755 "${DATA_DIR}/www/cgi-bin/ripperdoc-api"
+chmod 755 "${DATA_DIR}/usr/lib/ripperdoc/worker.py"
 
 # --- data.tar.gz (same as ipkg-build: tar -cpf - | gzip -n) ---
 cd "${DATA_DIR}"
@@ -52,7 +54,7 @@ mkdir -p "${CTRL_DIR}"
 cat > "${CTRL_DIR}/control" <<EOF
 Package: ${PKG_NAME}
 Version: ${PKG_VERSION}-${PKG_RELEASE}
-Depends: libc, luci-base, python3, python3-pip
+Depends: libc, luci-base, python3
 License: Apache-2.0
 Section: luci
 Architecture: ${PKG_ARCH}
