@@ -1,0 +1,137 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8"
+
+msgid "Ripperdoc"
+msgstr "Ripperdoc AI 编程助手"
+
+msgid "Ripperdoc is an open-source, extensible AI coding agent that runs in your terminal. It supports Claude, OpenAI, DeepSeek and other LLM providers."
+msgstr "Ripperdoc 是一个开源的、可扩展的 AI 编程助手，运行在终端中。支持 Claude、OpenAI、DeepSeek 等大语言模型。"
+
+msgid "Running"
+msgstr "运行中"
+
+msgid "Not running"
+msgstr "未运行"
+
+msgid "General Settings"
+msgstr "基本设置"
+
+msgid "Enable"
+msgstr "启用"
+
+msgid "Enable or disable the Ripperdoc service."
+msgstr "启用或禁用 Ripperdoc 服务。"
+
+msgid "Model"
+msgstr "模型"
+
+msgid "Select the AI model to use."
+msgstr "选择要使用的 AI 模型。"
+
+msgid "Custom Model"
+msgstr "自定义模型"
+
+msgid "Custom Model Name"
+msgstr "自定义模型名称"
+
+msgid "Enter the model identifier when using a custom model."
+msgstr "使用自定义模型时，输入模型标识符。"
+
+msgid "Safe Mode"
+msgstr "安全模式"
+
+msgid "When enabled, permission prompts are shown for sensitive operations. Disabling this is equivalent to --yolo mode."
+msgstr "启用时，敏感操作会显示权限提示。禁用等同于 --yolo 模式。"
+
+msgid "Verbose Logging"
+msgstr "详细日志"
+
+msgid "Enable detailed logging output."
+msgstr "启用详细的日志输出。"
+
+msgid "MCP Integration"
+msgstr "MCP 集成"
+
+msgid "Enable Model Context Protocol server integration."
+msgstr "启用模型上下文协议 (MCP) 服务器集成。"
+
+msgid "Tools Filter"
+msgstr "工具过滤"
+
+msgid "Comma-separated list of tools to enable. Leave empty for all tools."
+msgstr "启用的工具列表，用逗号分隔。留空表示启用所有工具。"
+
+msgid "Working Directory"
+msgstr "工作目录"
+
+msgid "The working directory for Ripperdoc sessions."
+msgstr "Ripperdoc 会话的工作目录。"
+
+msgid "Log File"
+msgstr "日志文件"
+
+msgid "Path to the log file."
+msgstr "日志文件路径。"
+
+msgid "API Keys"
+msgstr "API 密钥"
+
+msgid "Configure API keys for various LLM providers. At least one API key is required."
+msgstr "配置各个大语言模型提供商的 API 密钥。至少需要一个 API 密钥。"
+
+msgid "Anthropic API Key"
+msgstr "Anthropic API 密钥"
+
+msgid "API key for Claude models."
+msgstr "用于 Claude 模型的 API 密钥。"
+
+msgid "OpenAI API Key"
+msgstr "OpenAI API 密钥"
+
+msgid "API key for GPT models."
+msgstr "用于 GPT 模型的 API 密钥。"
+
+msgid "DeepSeek API Key"
+msgstr "DeepSeek API 密钥"
+
+msgid "API key for DeepSeek models."
+msgstr "用于 DeepSeek 模型的 API 密钥。"
+
+msgid "Kimi API Key"
+msgstr "Kimi API 密钥"
+
+msgid "API key for Kimi models."
+msgstr "用于 Kimi 模型的 API 密钥。"
+
+msgid "Qwen API Key"
+msgstr "Qwen API 密钥"
+
+msgid "API key for Qwen models."
+msgstr "用于 Qwen（通义千问）模型的 API 密钥。"
+
+msgid "GLM API Key"
+msgstr "GLM API 密钥"
+
+msgid "API key for GLM models."
+msgstr "用于 GLM（智谱）模型的 API 密钥。"
+
+msgid "Configuration"
+msgstr "配置"
+
+msgid "Log"
+msgstr "日志"
+
+msgid "Ripperdoc Log"
+msgstr "Ripperdoc 日志"
+
+msgid "The log is automatically refreshed every few seconds."
+msgstr "日志每隔几秒自动刷新。"
+
+msgid "Scroll to bottom"
+msgstr "滚动到底部"
+
+msgid "Clear log"
+msgstr "清除日志"
+
+msgid "No log data available."
+msgstr "暂无日志数据。"

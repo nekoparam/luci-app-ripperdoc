@@ -1,0 +1,34 @@
+{
+	"luci-app-ripperdoc": {
+		"description": "Grant access to Ripperdoc configuration",
+		"read": {
+			"uci": [
+				"ripperdoc"
+			],
+			"file": {
+				"/etc/init.d/ripperdoc": [
+					"list",
+					"exec"
+				],
+				"/var/log/ripperdoc.log": [
+					"read"
+				]
+			},
+			"ubus": {
+				"service": [
+					"list"
+				]
+			}
+		},
+		"write": {
+			"uci": [
+				"ripperdoc"
+			],
+			"file": {
+				"/etc/init.d/ripperdoc": [
+					"exec"
+				]
+			}
+		}
+	}
+}

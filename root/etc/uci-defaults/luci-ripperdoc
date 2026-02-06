@@ -1,0 +1,14 @@
+#!/bin/sh
+
+uci -q batch <<-EOF >/dev/null
+	set ucitrack.@ripperdoc[0]=ripperdoc
+	set ucitrack.@ripperdoc[0].init=ripperdoc
+	commit ucitrack
+EOF
+
+# Ensure ripperdoc is installed
+if ! command -v ripperdoc >/dev/null 2>&1; then
+	pip3 install ripperdoc 2>/dev/null || true
+fi
+
+exit 0

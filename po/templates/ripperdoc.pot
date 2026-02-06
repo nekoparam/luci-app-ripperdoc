@@ -1,0 +1,137 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8"
+
+msgid "Ripperdoc"
+msgstr ""
+
+msgid "Ripperdoc is an open-source, extensible AI coding agent that runs in your terminal. It supports Claude, OpenAI, DeepSeek and other LLM providers."
+msgstr ""
+
+msgid "Running"
+msgstr ""
+
+msgid "Not running"
+msgstr ""
+
+msgid "General Settings"
+msgstr ""
+
+msgid "Enable"
+msgstr ""
+
+msgid "Enable or disable the Ripperdoc service."
+msgstr ""
+
+msgid "Model"
+msgstr ""
+
+msgid "Select the AI model to use."
+msgstr ""
+
+msgid "Custom Model"
+msgstr ""
+
+msgid "Custom Model Name"
+msgstr ""
+
+msgid "Enter the model identifier when using a custom model."
+msgstr ""
+
+msgid "Safe Mode"
+msgstr ""
+
+msgid "When enabled, permission prompts are shown for sensitive operations. Disabling this is equivalent to --yolo mode."
+msgstr ""
+
+msgid "Verbose Logging"
+msgstr ""
+
+msgid "Enable detailed logging output."
+msgstr ""
+
+msgid "MCP Integration"
+msgstr ""
+
+msgid "Enable Model Context Protocol server integration."
+msgstr ""
+
+msgid "Tools Filter"
+msgstr ""
+
+msgid "Comma-separated list of tools to enable. Leave empty for all tools."
+msgstr ""
+
+msgid "Working Directory"
+msgstr ""
+
+msgid "The working directory for Ripperdoc sessions."
+msgstr ""
+
+msgid "Log File"
+msgstr ""
+
+msgid "Path to the log file."
+msgstr ""
+
+msgid "API Keys"
+msgstr ""
+
+msgid "Configure API keys for various LLM providers. At least one API key is required."
+msgstr ""
+
+msgid "Anthropic API Key"
+msgstr ""
+
+msgid "API key for Claude models."
+msgstr ""
+
+msgid "OpenAI API Key"
+msgstr ""
+
+msgid "API key for GPT models."
+msgstr ""
+
+msgid "DeepSeek API Key"
+msgstr ""
+
+msgid "API key for DeepSeek models."
+msgstr ""
+
+msgid "Kimi API Key"
+msgstr ""
+
+msgid "API key for Kimi models."
+msgstr ""
+
+msgid "Qwen API Key"
+msgstr ""
+
+msgid "API key for Qwen models."
+msgstr ""
+
+msgid "GLM API Key"
+msgstr ""
+
+msgid "API key for GLM models."
+msgstr ""
+
+msgid "Configuration"
+msgstr ""
+
+msgid "Log"
+msgstr ""
+
+msgid "Ripperdoc Log"
+msgstr ""
+
+msgid "The log is automatically refreshed every few seconds."
+msgstr ""
+
+msgid "Scroll to bottom"
+msgstr ""
+
+msgid "Clear log"
+msgstr ""
+
+msgid "No log data available."
+msgstr ""
