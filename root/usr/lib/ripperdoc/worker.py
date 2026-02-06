@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
-"""Background worker: reads session + ~/.ripperdoc.json, calls LLM API, writes response."""
+"""Background worker: calls ripperdoc CLI to handle user requests with real tool execution."""
 import json
 import os
 import sys
 import time
-import urllib.request
-import urllib.error
+import subprocess
 
 SESSIONS_DIR = "/var/lib/ripperdoc/sessions"
-CONFIG_FILE = os.path.expanduser("~/.ripperdoc.json")
 
 
 def load_session(sid):
@@ -21,48 +19,81 @@ def save_session(session):
         json.dump(session, f)
 
 
-def load_config():
-    if os.path.exists(CONFIG_FILE):
-        with open(CONFIG_FILE) as f:
-            return json.load(f)
-    return {}
+def call_ripperdoc(message):
+    """Call the real ripperdoc CLI with -p flag for non-interactive execution."""
+    try:
+        result = subprocess.run(
+            ["ripperdoc", "-p", message, "--yolo", "--output-format", "text"],
+            capture_output=True,
+            text=True,
+            timeout=300,
+            cwd="/root",
+        )
+        output = result.stdout.strip()
+        if not output:
+            output = result.stderr.strip() or "Ripperdoc completed with no output."
+        return output
+    except subprocess.TimeoutExpired:
+        return "**Error:** Request timed out after 5 minutes."
+    except FileNotFoundError:
+        return None  # ripperdoc not installed
+    except Exception as e:
+        return "**Error:** " + str(e)
 
 
-# ---- LLM API callers (stdlib only) ----
+def call_ripperdoc_json(message):
+    """Call ripperdoc with JSON output to capture tool usage details."""
+    try:
+        result = subprocess.run(
+            ["ripperdoc", "-p", message, "--yolo", "--output-format", "json"],
+            capture_output=True,
+            text=True,
+            timeout=300,
+            cwd="/root",
+        )
+        stdout = result.stdout.strip()
+        if not stdout:
+            return None
 
-def call_anthropic(messages, model, api_key, api_base, max_tokens):
-    system = "You are Ripperdoc, a helpful AI coding assistant running on an OpenWrt router. Be concise and helpful."
-    api_msgs = [{"role": m["role"], "content": m["content"]} for m in messages if m["role"] in ("user", "assistant")]
-    body = json.dumps({
-        "model": model,
-        "max_tokens": max_tokens,
-        "system": system,
-        "messages": api_msgs,
-    }).encode()
-    url = (api_base.rstrip("/") if api_base else "https://api.anthropic.com") + "/v1/messages"
-    req = urllib.request.Request(url, data=body, headers={
-        "Content-Type": "application/json",
-        "x-api-key": api_key,
-        "anthropic-version": "2023-06-01",
-    })
-    with urllib.request.urlopen(req, timeout=120) as resp:
-        data = json.loads(resp.read())
-    return data["content"][0]["text"]
+        data = json.loads(stdout)
+        # Extract text response and tool usage from JSON output
+        text_parts = []
+        tools_used = []
 
+        if isinstance(data, dict):
+            # Single response object
+            items = [data]
+        elif isinstance(data, list):
+            items = data
+        else:
+            return stdout
 
-def call_openai_compat(messages, model, api_key, api_base, max_tokens):
-    system = "You are Ripperdoc, a helpful AI coding assistant running on an OpenWrt router. Be concise and helpful."
-    api_msgs = [{"role": "system", "content": system}]
-    api_msgs += [{"role": m["role"], "content": m["content"]} for m in messages if m["role"] in ("user", "assistant")]
-    body = json.dumps({"model": model, "messages": api_msgs, "max_tokens": max_tokens}).encode()
-    url = (api_base.rstrip("/") if api_base else "https://api.openai.com") + "/v1/chat/completions"
-    req = urllib.request.Request(url, data=body, headers={
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + api_key,
-    })
-    with urllib.request.urlopen(req, timeout=120) as resp:
-        data = json.loads(resp.read())
-    return data["choices"][0]["message"]["content"]
+        for item in items:
+            if item.get("type") == "text" or "text" in item:
+                text_parts.append(item.get("text", ""))
+            elif item.get("type") == "tool_use":
+                tools_used.append({
+                    "name": item.get("name", "unknown"),
+                    "input": item.get("input", {}),
+                })
+            elif item.get("type") == "result":
+                text_parts.append(item.get("result", ""))
+            elif item.get("content"):
+                # Anthropic-style response
+                for block in item["content"]:
+                    if block.get("type") == "text":
+                        text_parts.append(block["text"])
+
+        response = "\n".join(text_parts).strip()
+        if tools_used:
+            tool_summary = "\n\n---\n**Tools used:** " + ", ".join(
+                t["name"] for t in tools_used
+            )
+            response += tool_summary
+
+        return response if response else None
+    except (json.JSONDecodeError, subprocess.TimeoutExpired, Exception):
+        return None
 
 
 def main():
@@ -71,27 +102,42 @@ def main():
 
     sid = sys.argv[1]
     session = load_session(sid)
-    cfg = load_config()
 
-    profile = (cfg.get("model_profiles") or {}).get("default") or {}
-    provider = profile.get("provider", "anthropic")
-    model = profile.get("model", "claude-sonnet-4-20250514")
-    api_key = profile.get("api_key", "")
-    api_base = profile.get("api_base") or None
-    max_tokens = profile.get("max_tokens") or 4096
+    # Get the last user message
+    last_msg = ""
+    for m in reversed(session["messages"]):
+        if m["role"] == "user":
+            last_msg = m["content"]
+            break
+
+    if not last_msg:
+        session["working"] = False
+        save_session(session)
+        return
 
     try:
-        if not api_key:
-            raise ValueError("No API key configured. Go to Services > Ripperdoc > Configuration to set it.")
+        # Try JSON output first for richer responses
+        text = call_ripperdoc_json(last_msg)
 
-        if provider == "anthropic":
-            text = call_anthropic(session["messages"], model, api_key, api_base, max_tokens)
-        else:
-            text = call_openai_compat(session["messages"], model, api_key, api_base, max_tokens)
+        # Fall back to text output
+        if text is None:
+            text = call_ripperdoc(last_msg)
 
-        session["messages"].append({"role": "assistant", "content": text, "timestamp": time.time()})
+        # If ripperdoc is not installed at all, show error
+        if text is None:
+            text = "**Error:** `ripperdoc` command not found. Please install ripperdoc: `pip3 install ripperdoc`"
+
+        session["messages"].append({
+            "role": "assistant",
+            "content": text,
+            "timestamp": time.time(),
+        })
     except Exception as e:
-        session["messages"].append({"role": "assistant", "content": "**Error:** " + str(e), "timestamp": time.time()})
+        session["messages"].append({
+            "role": "assistant",
+            "content": "**Error:** " + str(e),
+            "timestamp": time.time(),
+        })
     finally:
         session["working"] = False
         save_session(session)
