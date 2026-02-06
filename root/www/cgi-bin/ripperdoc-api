@@ -9,6 +9,7 @@ import subprocess
 
 SESSIONS_DIR = "/var/lib/ripperdoc/sessions"
 WORKER = "/usr/lib/ripperdoc/worker.py"
+CONFIG_FILE = os.path.expanduser("~/.ripperdoc.json")
 
 
 def read_body():
@@ -86,7 +87,6 @@ def send_message(data):
         s["title"] = content[:50]
     s["working"] = True
     save(s)
-    # Spawn background worker
     subprocess.Popen(
         [sys.executable, WORKER, sid],
         stdout=open("/dev/null", "w"),
@@ -103,12 +103,28 @@ def delete_session(data):
     return {"ok": True}
 
 
+def get_config(_=None):
+    if os.path.exists(CONFIG_FILE):
+        with open(CONFIG_FILE) as f:
+            return json.load(f)
+    return {}
+
+
+def save_config(data):
+    cfg = data.get("config", {})
+    with open(CONFIG_FILE, "w") as f:
+        json.dump(cfg, f, indent=2, ensure_ascii=False)
+    return {"ok": True}
+
+
 ACTIONS = {
     "list_sessions": lambda _: list_sessions(),
     "new_session": lambda _: new_session(),
     "get_session": get_session,
     "send_message": send_message,
     "delete_session": delete_session,
+    "get_config": lambda _: get_config(),
+    "save_config": save_config,
 }
 
 try:
